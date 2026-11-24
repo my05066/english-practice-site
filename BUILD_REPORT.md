@@ -62,4 +62,4 @@ npm run dev     # local dev
 npm run build   # production build to dist/
 ```
 
-Deployment: pushing to `main` triggers `.github/workflows/deploy-pages.yml`, which builds and publishes to GitHub Pages.
+Deployment: GitHub Pages serves the production build from the `gh-pages` branch (root). Note: a GitHub Actions workflow version (`deploy-pages.yml`) was prepared but could NOT be pushed — the `gh` OAuth token on this machine has scopes `gist, read:org, repo` and no `workflow` scope, and GitHub rejected the push of `.github/workflows/*`. The workflow file is kept locally at `~/workspace/english-practice-site-workflow-backup/deploy-pages.yml`; to switch to Actions deploys later, re-auth `gh` with the `workflow` scope, add the file, and set Pages source to "GitHub Actions". To redeploy manually: `npm run build`, then publish the contents of `dist/` to the `gh-pages` branch root and push.
