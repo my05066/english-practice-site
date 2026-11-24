@@ -1,0 +1,175 @@
+[
+  {
+    "id": 1,
+    "question_en": "Do you ever feel bored?",
+    "question_cn": "你有时候会感到无聊吗？",
+    "answer_cn": "是的，有时候会。我通常在没事做的时候感到无聊。这时候我会出去散散步，听听音乐。这能让我放松下来。",
+    "answer_en": "Yes sometimes. I usually feel bored when I have nothing to do. Then I go for a walk and listen to some music. It helps me relax.",
+    "chunks": [
+      "when I have nothing to do",
+      "go for a walk",
+      "help me relax"
+    ],
+    "keywords": [
+      "无聊",
+      "没事做",
+      "散步",
+      "听音乐",
+      "放松"
+    ],
+    "shadow_sentences": [
+      "Yes sometimes.",
+      "I usually feel bored when I have nothing to do.",
+      "Then I go for a walk and listen to some music.",
+      "It helps me relax."
+    ]
+  },
+  {
+    "id": 2,
+    "question_en": "Where is your hometown?",
+    "question_cn": "你的家乡在哪里？",
+    "answer_cn": "我的家乡是太原，在山西。它是一个历史很久的城市。最近几年变化很大，交通也更方便了。",
+    "answer_en": "My hometown is Taiyuan in Shanxi. It is a city with a long history. It has changed a lot in recent years and the transport is much more convenient now.",
+    "chunks": [
+      "with a long history",
+      "change a lot",
+      "much more convenient"
+    ],
+    "keywords": [
+      "家乡",
+      "太原",
+      "历史久",
+      "变化大",
+      "交通方便"
+    ],
+    "shadow_sentences": [
+      "My hometown is Taiyuan in Shanxi.",
+      "It is a city with a long history.",
+      "It has changed a lot in recent years.",
+      "The transport is much more convenient now."
+    ]
+  },
+  {
+    "id": 3,
+    "question_en": "What do you do in your free time?",
+    "question_cn": "空闲时间你做什么？",
+    "answer_cn": "空闲时间我喜欢看视频、听音乐。有时候我也会和朋友一起打羽毛球。这能让我放松，也能让我保持健康。",
+    "answer_en": "In my free time I like watching videos and listening to music. Sometimes I play badminton with my friends. It helps me relax and stay healthy.",
+    "chunks": [
+      "in my free time",
+      "play badminton with my friends",
+      "stay healthy"
+    ],
+    "keywords": [
+      "空闲时间",
+      "看视频",
+      "听音乐",
+      "打羽毛球",
+      "放松",
+      "健康"
+    ],
+    "shadow_sentences": [
+      "In my free time I like watching videos and listening to music.",
+      "Sometimes I play badminton with my friends.",
+      "It helps me relax and stay healthy."
+    ]
+  },
+  {
+    "id": 4,
+    "question_en": "Do you like music?",
+    "question_cn": "你喜欢音乐吗？",
+    "answer_cn": "是的，我很喜欢音乐。我每天都会听音乐，尤其是在学习的时候。轻音乐能让我集中注意力。",
+    "answer_en": "Yes I love music. I listen to music every day especially when I study. Soft music helps me focus.",
+    "chunks": [
+      "listen to music every day",
+      "especially when I study",
+      "help me focus"
+    ],
+    "keywords": [
+      "喜欢音乐",
+      "每天",
+      "学习的时候",
+      "轻音乐",
+      "集中注意力"
+    ],
+    "shadow_sentences": [
+      "Yes I love music.",
+      "I listen to music every day especially when I study.",
+      "Soft music helps me focus."
+    ]
+  },
+  {
+    "id": 5,
+    "question_en": "Can you cook?",
+    "question_cn": "你会做饭吗？",
+    "answer_cn": "会一点。我会做一些简单的菜，比如西红柿炒鸡蛋。做饭不难，但要花时间。我更喜欢和家人一起吃饭。",
+    "answer_en": "Yes a little. I can cook some simple dishes like tomato and egg stir-fry. Cooking is not difficult but it takes time. I prefer eating with my family.",
+    "chunks": [
+      "a little",
+      "simple dishes",
+      "it takes time"
+    ],
+    "keywords": [
+      "会一点",
+      "简单的菜",
+      "西红柿炒鸡蛋",
+      "花时间",
+      "和家人一起吃饭"
+    ],
+    "shadow_sentences": [
+      "Yes a little.",
+      "I can cook some simple dishes like tomato and egg stir-fry.",
+      "Cooking is not difficult but it takes time.",
+      "I prefer eating with my family."
+    ]
+  },
+  {
+    "id": 6,
+    "question_en": "Do you prefer hot weather or cold weather?",
+    "question_cn": "你更喜欢热天还是冷天？",
+    "answer_cn": "我更喜欢冷天。热天出汗很多，让人很不舒服。冷天我可以穿厚衣服，喝一杯热茶。",
+    "answer_en": "I prefer cold weather. In hot weather I sweat a lot and it feels uncomfortable. In cold weather I can wear warm clothes and drink a cup of hot tea.",
+    "chunks": [
+      "prefer cold weather",
+      "sweat a lot",
+      "feel uncomfortable"
+    ],
+    "keywords": [
+      "更喜欢冷天",
+      "出汗多",
+      "不舒服",
+      "厚衣服",
+      "热茶"
+    ],
+    "shadow_sentences": [
+      "I prefer cold weather.",
+      "In hot weather I sweat a lot and it feels uncomfortable.",
+      "In cold weather I can wear warm clothes and drink a cup of hot tea."
+    ]
+  },
+  {
+    "id": 7,
+    "question_en": "What do you study?",
+    "question_cn": "你学什么专业？",
+    "answer_cn": "我学计算机科学。我是大三学生。我的专业很有意思，但也很难。我想以后做一名程序员。",
+    "answer_en": "I study computer science. I am a third-year university student. My major is interesting but it is also difficult. I want to be a programmer in the future.",
+    "chunks": [
+      "third-year university student",
+      "be a programmer",
+      "in the future"
+    ],
+    "keywords": [
+      "计算机科学",
+      "大三",
+      "有意思",
+      "很难",
+      "程序员"
+    ],
+    "shadow_sentences": [
+      "I study computer science.",
+      "I am a third-year university student.",
+      "My major is interesting but it is also difficult.",
+      "I want to be a programmer in the future."
+    ]
+  }
+]
