@@ -119,6 +119,16 @@ audio { display: block; width: 100%; }
 .lookup-result > * + * { margin-top: .5rem; }
 .chunks p { color: var(--muted); }
 #favorites { scroll-margin-top: 1rem; }
+.sentence-row { padding: .7rem .25rem; border-bottom: 1px solid var(--line); }
+.sentence-row:last-child { border-bottom: none; }
+.sentence-row.playing { background: var(--tint); border-radius: .5rem; }
+.sentence-row.done .sentence-head span { color: var(--muted); }
+.sentence-head { display: flex; align-items: flex-start; gap: .5rem; }
+.sentence-head span { flex: 1; min-width: 0; }
+.sentence-head button { flex: none; }
+.sentence-cn { margin: .25rem 0 .25rem 1.6rem; }
+.progress-track { height: .55rem; background: var(--tint); border-radius: 999px; overflow: hidden; margin-top: .4rem; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width .3s ease; }
 .bottom-tabs { display: none; }
 @media (max-width: 46rem) {
   main { padding-bottom: 6.5rem; }

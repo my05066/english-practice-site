@@ -42,6 +42,11 @@ onUnmounted(() => clearInterval(clock))
       <RouterLink to="/practice#favorites">查看收藏</RouterLink>
     </aside>
   </div>
+  <section class="panel section-gap">
+    <h2>长文跟读 · 新</h2>
+    <p>3 篇 220 词以上的长文，全文连续播放 + 逐句跟读录音，全部是真音频文件。</p>
+    <RouterLink class="button primary" to="/articles">去练长文</RouterLink>
+  </section>
   <section class="topics">
     <h2>第一周题库</h2>
     <ol class="topic-list">

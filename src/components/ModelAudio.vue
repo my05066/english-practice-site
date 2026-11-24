@@ -1,16 +1,15 @@
 <script setup>
-import { ref } from 'vue'
-import { audioUrl } from '../audio'
+import { computed, ref } from 'vue'
 
-defineProps({ file: String, label: String })
-const state = ref('loading')
+const props = defineProps({ path: String, label: String })
+const failed = ref(false)
+const src = computed(() => `${import.meta.env.BASE_URL}audio/${props.path}`)
 </script>
 
 <template>
   <div class="audio-slot">
     <p><strong>{{ label }}</strong></p>
-    <audio v-if="state !== 'missing'" v-show="state === 'ready'" controls preload="metadata" :src="audioUrl('topics', file)"
-      @loadedmetadata="state = 'ready'" @error="state = 'missing'"></audio>
-    <p v-if="state !== 'ready'" class="muted" role="status">{{ state === 'missing' ? '音频还没生成' : '正在检查音频…' }}</p>
+    <audio v-if="!failed" controls preload="none" :src="src" @error="failed = true"></audio>
+    <p v-else class="muted" role="status">音频文件缺失</p>
   </div>
 </template>

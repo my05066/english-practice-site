@@ -3,9 +3,9 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ModelAudio from '../components/ModelAudio.vue'
 import SentenceRecorder from '../components/SentenceRecorder.vue'
-import { lookupWord } from '../data/dictionary'
+import { lookupWordAsync } from '../data/dictionary'
 import { chunksFor, dailyTopic, topics } from '../data/topics'
-import { playPhoneme, sayText, stopPronunciation } from '../audio'
+import { playPhoneme, stopAudio } from '../audio'
 import { favorites, saveChunks } from '../storage'
 
 const route = useRoute()
@@ -16,19 +16,31 @@ const allSaved = computed(() => chunks.value.every(chunk => favorites.value.some
 
 const input = ref('')
 const searched = ref(false)
+const searching = ref(false)
 const result = ref(null)
 const audioStatus = ref('')
-function lookup() {
-  stopPronunciation()
+async function lookup() {
+  stopAudio()
   audioStatus.value = ''
-  searched.value = true
-  result.value = lookupWord(input.value)
+  searched.value = false
+  searching.value = true
+  result.value = null
+  try {
+    result.value = await lookupWordAsync(input.value)
+  } finally {
+    searching.value = false
+    searched.value = true
+  }
 }
 
 async function pronounce(symbol) {
   audioStatus.value = ''
-  const status = await playPhoneme(symbol, result.value.word)
-  if (status) audioStatus.value = status
+  try {
+    await playPhoneme(symbol === 'ər' ? 'ə' : symbol)
+    audioStatus.value = `正在播放 /${symbol}/ 例词音频`
+  } catch {
+    audioStatus.value = '该音素音频播放失败，请重试。'
+  }
 }
 
 const remaining = ref(5)
@@ -36,10 +48,6 @@ const phase = ref('prompt')
 const sentenceIndex = ref(0)
 const sentence = computed(() => topic.value.shadow_sentences[sentenceIndex.value])
 const sentenceKey = computed(() => `${topic.value.id}-${sentenceIndex.value + 1}`)
-const ttsStatus = ref('')
-function speakSentence() {
-  ttsStatus.value = sayText(sentence.value) ? '' : '浏览器无法朗读这句话。'
-}
 const recordingBusy = ref(false)
 const recordings = ref({})
 let timer
@@ -79,7 +87,7 @@ function removeChunk(text) {
 watch(() => topic.value.id, resetFlow)
 onBeforeUnmount(() => {
   clearInterval(timer)
-  stopPronunciation()
+  stopAudio()
   Object.values(recordings.value).forEach(url => URL.revokeObjectURL(url))
 })
 </script>
@@ -119,11 +127,7 @@ onBeforeUnmount(() => {
         <div v-if="phase === 'answer'" class="practice-step">
           <p class="eyebrow">第 3 步 · 跟读第 {{ sentenceIndex + 1 }} / {{ topic.shadow_sentences.length }} 句</p>
           <h3 lang="en" :key="sentenceKey">{{ sentence }}</h3>
-          <ModelAudio :key="sentenceKey" :file="'topic-' + sentenceKey" label="VoiceStudio · 本句范读" />
-          <div class="actions">
-            <button type="button" @click="speakSentence">🔊 浏览器朗读（非 VoiceStudio）</button>
-          </div>
-          <p v-if="ttsStatus" class="muted" role="status">{{ ttsStatus }}</p>
+          <ModelAudio :key="sentenceKey" :path="'topics/topic-' + sentenceKey + '.mp3'" label="本句范读" />
           <SentenceRecorder :key="sentenceKey" :url="recordings[sentenceKey]" @recorded="keepRecording" @busy="recordingBusy = $event" />
           <div class="actions">
             <button type="button" :disabled="recordingBusy || sentenceIndex === 0" @click="sentenceIndex--">上一句</button>
@@ -131,7 +135,7 @@ onBeforeUnmount(() => {
           </div>
           <details>
             <summary>完整范文音频</summary>
-            <ModelAudio :key="topic.id" :file="'topic-' + topic.id" label="VoiceStudio · 完整范读" />
+            <ModelAudio :key="topic.id" :path="'topics/topic-' + topic.id + '.mp3'" label="完整范文" />
           </details>
         </div>
       </section>
@@ -161,14 +165,19 @@ onBeforeUnmount(() => {
             <button type="submit" class="primary">查询</button>
           </div>
         </form>
-        <div v-if="result" class="lookup-result">
+        <p v-if="searching" role="status">查询中…</p>
+        <div v-else-if="result" class="lookup-result">
           <h3 lang="en">{{ result.word }}</h3>
-          <p>音节 · <span lang="en">{{ result.syllables.join(' · ') }}</span></p>
-          <p>音标 · <span>{{ result.ipa }}</span></p>
-          <div class="actions">
+          <p v-if="result.syllables.length">音节 · <span lang="en">{{ result.syllables.join(' · ') }}</span></p>
+          <p v-if="result.ipa">音标 · <span>{{ result.ipa }}</span></p>
+          <div v-if="result.phonemes.length" class="actions">
             <button v-for="(symbol, index) in result.phonemes" :key="index" type="button" @click="pronounce(symbol)">/{{ symbol }}/</button>
           </div>
-          <p class="muted">缺少音素音频时，浏览器朗读例词。弱元音 /i/、/u/ 缺少音频时朗读查询的单词。</p>
+          <div v-if="result.audio" class="audio-slot">
+            <p><strong>在线词典发音</strong></p>
+            <audio controls preload="none" :src="result.audio"></audio>
+          </div>
+          <p class="muted">{{ result.source === 'bundled' ? '来源：内置词典（CMU 发音词典）' : '来源：在线词典（Free Dictionary API）' }}</p>
         </div>
         <p v-else-if="searched" role="status">词库里还没有</p>
         <p v-if="audioStatus" role="status">{{ audioStatus }}</p>

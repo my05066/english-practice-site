@@ -14,15 +14,15 @@ The production build goes to `dist/`. Publish its contents from a GitHub Pages b
 
 ## Structure
 
-- `src/pages/` contains the three views. The home page rotates through the CSV topics using the local calendar day of year (January 1 is day 1) modulo seven. The sound chart includes a minimal-pair quiz and error book. The practice view contains the dictionary, countdown, shadowing, recording, and favorites.
+- `src/pages/` contains the four views. The home page rotates through the CSV topics using the local calendar day of year (January 1 is day 1) modulo seven. The sound chart includes a minimal-pair quiz and error book. The practice view contains the dictionary, countdown, shadowing, recording, and favorites. The articles view (`/articles`) offers three original long articles (229–240 words each) with continuous full playback, sentence-by-sentence shadowing with recording, and per-sentence progress stored in localStorage.
 - `src/data/` holds the CSV snapshot, Episode 1 chunks, IPA chart, and dictionary. The chart displays the 44 individually listed sounds and four labeled consonant clusters (/ts/, /dz/, /tr/, /dr/).
 - `src/components/` contains the mouth diagram, model audio player, and sentence recorder.
 - `src/storage.js` stores favorite chunks and quiz mistakes in localStorage under `eps-fav-chunks` and `eps-error-book`. Microphone recordings stay in memory while the practice page is open.
 
 ## Audio
 
-See [the audio README](public/audio/README.md) for filenames. Phoneme buttons try a local MP3 first. If it cannot play, they use the browser to speak an example word, preferring an American English (en-US) voice when installed. The quiz also uses browser speech (en-US). On the practice page, each model-answer sentence also has a clearly labelled browser read-aloud fallback button ("浏览器朗读（非 VoiceStudio）", en-US) for use until the VoiceStudio MP3 is added. VoiceStudio model audio comes exclusively from the corresponding MP3 slots, which show **音频还没生成** when audio is unavailable. Microphone recording requires permission and a supported browser running on localhost or HTTPS.
+See [the audio README](public/audio/README.md) for filenames. Since v2, every sound on the site is a real MP3 file shipped with the site (generated locally with the Piper neural TTS, American voice `en_US-lessac-medium`): phoneme example words, minimal-pair quiz words, Week 1 model answers, and the long articles. Playback uses one shared `Audio` element plus native `<audio controls>` players, always started by a user tap — no browser text-to-speech is used anywhere. Microphone recording requires permission and a supported browser running on localhost or HTTPS.
 
 ## Dictionary honesty rule
 
-The bundled dictionary covers the seven Week 1 English answers and a hand-compiled list of 200 common words. Entries use broad British IPA, with approximate English pronunciations for place names. `lookupWord(word)` trims whitespace and ignores case. Unknown words return `null`, and the UI displays exactly **词库里还没有**.
+The bundled dictionary (`public/data/dict.json`, loaded lazily on first lookup) holds 27,657 entries derived from the public-domain CMU Pronouncing Dictionary — see `tools/build_dict.py` for the ARPAbet→IPA mapping and word selection; nothing is invented by a language model. Words missing from the bundled dictionary fall back to the Free Dictionary API (labelled 在线词典 in the UI, results cached in localStorage). Only when both sources miss does the UI display **词库里还没有**.

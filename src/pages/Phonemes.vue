@@ -2,7 +2,7 @@
 import { computed, onUnmounted, ref } from 'vue'
 import MouthDiagram from '../components/MouthDiagram.vue'
 import { groups, bySymbol, trapGroups } from '../data/phonemes'
-import { playPhoneme, sayWord, stopPronunciation } from '../audio'
+import { playPhoneme, playWord, stopAudio } from '../audio'
 import { errors } from '../storage'
 
 const selected = ref(bySymbol['iː'])
@@ -12,8 +12,12 @@ const traps = new Set(trapGroups.flatMap(group => group.symbols))
 async function select(entry) {
   selected.value = entry
   audioStatus.value = ''
-  const status = await playPhoneme(entry.symbol)
-  if (selected.value.symbol === entry.symbol) audioStatus.value = status
+  try {
+    await playPhoneme(entry.symbol)
+    if (selected.value.symbol === entry.symbol) audioStatus.value = `正在播放例词 ${entry.example} 的音频`
+  } catch {
+    if (selected.value.symbol === entry.symbol) audioStatus.value = '音频播放失败，请重试。'
+  }
 }
 
 const pairs = [...trapGroups, { label: '/æ/ 与 /e/', words: ['bad', 'bed'] }]
@@ -27,21 +31,22 @@ function resetQuiz() {
   target.value = ''
   answered.value = ''
   feedback.value = ''
-  stopPronunciation()
+  stopAudio()
 }
 
-function listen() {
+async function listen() {
   if (answered.value) {
     answered.value = ''
     target.value = ''
   }
   const word = target.value || pair.value.words[Math.floor(Math.random() * 2)]
-  if (sayWord(word)) {
-    target.value = word
-    feedback.value = '请选择听到的单词。'
-  } else {
-    target.value = ''
-    feedback.value = '此浏览器不支持例词朗读。'
+  target.value = word
+  feedback.value = '正在播放…'
+  try {
+    await playWord(word)
+    if (target.value === word) feedback.value = '请选择听到的单词。'
+  } catch {
+    if (target.value === word) feedback.value = '音频播放失败，请重试。'
   }
 }
 
@@ -53,7 +58,7 @@ function answer(word) {
   if (!correct) errors.value.unshift({ expected: target.value, chosen: word })
 }
 
-onUnmounted(stopPronunciation)
+onUnmounted(stopAudio)
 </script>
 
 <template>
@@ -78,7 +83,7 @@ onUnmounted(stopPronunciation)
       <MouthDiagram :shape="selected.shape" />
       <p>例词 · <strong lang="en">{{ selected.example }}</strong></p>
       <button type="button" class="primary" @click="select(selected)">播放发音</button>
-      <p class="muted">缺少音素音频时，浏览器会朗读整个例词。</p>
+      <p class="muted">所有发音均为音频文件，点击即可播放。</p>
       <p role="status">{{ audioStatus }}</p>
     </section>
   </div>

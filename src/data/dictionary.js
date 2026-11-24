@@ -1,329 +1,71 @@
-// Broad British pronunciations. Hyphens divide display syllables.
-// Each row pairs the display syllables with the full IPA transcription.
-const answerWords = `
-a ə
-al-so ˈɔːlsəʊ
-am æm
-and ænd
-bad-min-ton ˈbædmɪntən
-be biː
-bored bɔːd
-but bʌt
-can kæn
-changed tʃeɪndʒd
-cit-y ˈsɪti
-clothes kləʊðz
-cold kəʊld
-com-pu-ter kəmˈpjuːtə
-con-ven-ient kənˈviːniənt
-cook kʊk
-cook-ing ˈkʊkɪŋ
-cup kʌp
-day deɪ
-dif-fi-cult ˈdɪfɪkəlt
-dish-es ˈdɪʃɪz
-do duː
-drink drɪŋk
-eat-ing ˈiːtɪŋ
-egg eɡ
-es-pe-cial-ly ɪˈspeʃəli
-ev-ery ˈevri
-fam-i-ly ˈfæməli
-feel fiːl
-feels fiːlz
-fo-cus ˈfəʊkəs
-for fɔː
-free friː
-friends frendz
-fu-ture ˈfjuːtʃə
-go ɡəʊ
-has hæz
-have hæv
-health-y ˈhelθi
-helps helps
-his-to-ry ˈhɪstəri
-home-town ˈhəʊmtaʊn
-hot hɒt
-i aɪ
-in ɪn
-in-ter-est-ing ˈɪntərestɪŋ
-is ɪz
-it ɪt
-like laɪk
-lis-ten ˈlɪsən
-lis-ten-ing ˈlɪsənɪŋ
-lit-tle ˈlɪtəl
-long lɒŋ
-lot lɒt
-love lʌv
-ma-jor ˈmeɪdʒə
-me miː
-more mɔː
-much mʌtʃ
-mu-sic ˈmjuːzɪk
-my maɪ
-not nɒt
-noth-ing ˈnʌθɪŋ
-now naʊ
-of ɒv
-play pleɪ
-pre-fer prɪˈfɜː
-pro-gram-mer ˈprəʊɡræmə
-re-cent ˈriːsənt
-re-lax rɪˈlæks
-sci-ence ˈsaɪəns
-shan-xi ˌʃænˈʃiː
-sim-ple ˈsɪmpəl
-soft sɒft
-some sʌm
-some-times ˈsʌmtaɪmz
-stay steɪ
-stir-fry ˈstɜːfraɪ
-stu-dent ˈstjuːdənt
-stud-y ˈstʌdi
-sweat swet
-tai-yuan ˌtaɪˈjwɑːn
-takes teɪks
-tea tiː
-the ðə
-then ðen
-third-year ˌθɜːdˈjɪə
-time taɪm
-to tuː
-to-ma-to təˈmɑːtəʊ
-trans-port ˈtrænspɔːt
-un-com-fort-a-ble ʌnˈkʌmfətəbəl
-u-ni-ver-si-ty ˌjuːnɪˈvɜːsəti
-u-su-al-ly ˈjuːʒuəli
-vid-e-os ˈvɪdiəʊz
-walk wɔːk
-want wɒnt
-warm wɔːm
-watch-ing ˈwɒtʃɪŋ
-wear weə
-weath-er ˈweðə
-when wen
-with wɪð
-years jɪəz
-yes jes
-`
+// Word breakdown dictionary (v2).
+// Bundled source: public/data/dict.json — 27,657 entries derived from the CMU
+// Pronouncing Dictionary (public domain), ARPAbet converted to IPA by
+// tools/build_dict.py. Loaded lazily, only when a lookup happens.
+// Fallback source: Free Dictionary API (no key), results cached in
+// localStorage under 'eps-dict-cache'. A word is only "not found" when BOTH
+// sources miss.
+let dictPromise = null
 
-// A hand-compiled list of common words, with overlap in the Week 1 answers.
-const commonWords = `
-a ə
-a-bout əˈbaʊt
-a-cross əˈkrɒs
-af-ter ˈɑːftə
-a-gain əˈɡen
-all ɔːl
-al-so ˈɔːlsəʊ
-al-ways ˈɔːlweɪz
-am æm
-an æn
-and ænd
-an-swer ˈɑːnsə
-an-y ˈeni
-are ɑː
-as æz
-ask ɑːsk
-at æt
-back bæk
-bad bæd
-be biː
-be-cause bɪˈkɒz
-bed bed
-be-fore bɪˈfɔː
-be-gin bɪˈɡɪn
-bet-ter ˈbetə
-big bɪɡ
-book bʊk
-boy bɔɪ
-but bʌt
-by baɪ
-can kæn
-car kɑː
-cat kæt
-cit-y ˈsɪti
-cold kəʊld
-come kʌm
-cook kʊk
-could kʊd
-day deɪ
-dif-fer-ent ˈdɪfərənt
-do duː
-door dɔː
-each iːtʃ
-eat iːt
-end end
-ev-er ˈevə
-ev-ery ˈevri
-fam-i-ly ˈfæməli
-feel fiːl
-find faɪnd
-for fɔː
-friend frend
-from frɒm
-give ɡɪv
-go ɡəʊ
-good ɡʊd
-had hæd
-hand hænd
-hard hɑːd
-has hæz
-have hæv
-he hiː
-head hed
-help help
-her hɜː
-here hɪə
-him hɪm
-his hɪz
-home həʊm
-hot hɒt
-house haʊs
-how haʊ
-i aɪ
-if ɪf
-in ɪn
-is ɪz
-it ɪt
-just dʒʌst
-keep kiːp
-know nəʊ
-last lɑːst
-learn lɜːn
-leave liːv
-let let
-life laɪf
-light laɪt
-like laɪk
-lis-ten ˈlɪsən
-lit-tle ˈlɪtəl
-long lɒŋ
-look lʊk
-love lʌv
-make meɪk
-man mæn
-man-y ˈmeni
-may meɪ
-me miː
-mean miːn
-men men
-might maɪt
-more mɔː
-most məʊst
-much mʌtʃ
-mu-sic ˈmjuːzɪk
-must mʌst
-my maɪ
-need niːd
-nev-er ˈnevə
-new njuː
-night naɪt
-no nəʊ
-not nɒt
-now naʊ
-of ɒv
-off ɒf
-old əʊld
-on ɒn
-one wʌn
-on-ly ˈəʊnli
-or ɔː
-oth-er ˈʌðə
-our aʊə
-out aʊt
-o-ver ˈəʊvə
-own əʊn
-peo-ple ˈpiːpəl
-place pleɪs
-play pleɪ
-read riːd
-run rʌn
-said sed
-same seɪm
-say seɪ
-school skuːl
-see siː
-she ʃiː
-sheep ʃiːp
-ship ʃɪp
-should ʃʊd
-sink sɪŋk
-so səʊ
-some sʌm
-start stɑːt
-still stɪl
-stop stɒp
-take teɪk
-talk tɔːk
-tell tel
-than ðæn
-that ðæt
-the ðə
-their ðeə
-them ðem
-then ðen
-there ðeə
-these ðiːz
-they ðeɪ
-thing θɪŋ
-think θɪŋk
-this ðɪs
-those ðəʊz
-three θriː
-time taɪm
-to tuː
-too tuː
-try traɪ
-two tuː
-un-der ˈʌndə
-up ʌp
-us ʌs
-use juːz
-ver-y ˈveri
-vest vest
-walk wɔːk
-want wɒnt
-was wɒz
-wa-ter ˈwɔːtə
-way weɪ
-we wiː
-well wel
-went went
-were wɜː
-west west
-what wɒt
-when wen
-where weə
-which wɪtʃ
-who huː
-why waɪ
-will wɪl
-with wɪð
-word wɜːd
-work wɜːk
-world wɜːld
-would wʊd
-write raɪt
-year jɪə
-yes jes
-you juː
-your jɔː
-`
-
-const ipaTokens = /iː|uː|ɜː|ɔː|ɑː|ɪə|eə|ʊə|eɪ|aɪ|ɔɪ|əʊ|aʊ|tʃ|dʒ|[^ˈˌ]/gu
-const compoundSpellings = new Set(['stir-fry', 'third-year'])
-
-export const dictionary = new Map()
-for (const line of `${commonWords.trim()}\n${answerWords.trim()}`.split('\n')) {
-  const [spelling, ipa] = line.split(' ')
-  const syllables = spelling.split('-')
-  const word = compoundSpellings.has(spelling) ? spelling : syllables.join('')
-  const phonemes = ipa.match(ipaTokens)
-  dictionary.set(word, { word, syllables, ipa: `/${ipa}/`, phonemes })
+function loadDict() {
+  if (!dictPromise) {
+    dictPromise = fetch(`${import.meta.env.BASE_URL}data/dict.json`)
+      .then(res => (res.ok ? res.json() : {}))
+      .catch(() => ({}))
+  }
+  return dictPromise
 }
 
-export function lookupWord(word) {
-  return typeof word === 'string' ? dictionary.get(word.trim().toLowerCase()) ?? null : null
+export async function lookupBundled(rawWord) {
+  const word = rawWord?.trim().toLowerCase()
+  if (!word) return null
+  const dict = await loadDict()
+  const entry = dict[word]
+  if (!entry) return null
+  const [ipa, syllStr, phonStr] = entry
+  return {
+    word,
+    ipa,
+    syllables: syllStr ? syllStr.split('·') : [],
+    phonemes: phonStr ? phonStr.split(' ') : [],
+    audio: null,
+    source: 'bundled',
+  }
+}
+
+const CACHE_KEY = 'eps-dict-cache'
+
+function readCache() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY)) ?? {} } catch { return {} }
+}
+
+export async function lookupOnline(rawWord) {
+  const word = rawWord?.trim().toLowerCase()
+  if (!word) return null
+  const cache = readCache()
+  if (cache[word]) return { word, syllables: [], phonemes: [], source: 'online', ...cache[word] }
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    const entry = Array.isArray(data) ? data[0] : null
+    if (!entry) return null
+    const phonetics = entry.phonetics ?? []
+    const ipa = entry.phonetic || phonetics.find(p => p.text)?.text || ''
+    const audio = phonetics.find(p => p.audio?.endsWith('-us.mp3'))?.audio
+      || phonetics.find(p => p.audio)?.audio || null
+    if (!ipa && !audio) return null
+    const result = { ipa, audio }
+    try {
+      cache[word] = result
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cache))
+    } catch { /* storage full/unavailable — lookup still works */ }
+    return { word, syllables: [], phonemes: [], source: 'online', ...result }
+  } catch {
+    return null
+  }
+}
+
+export async function lookupWordAsync(rawWord) {
+  return (await lookupBundled(rawWord)) ?? (await lookupOnline(rawWord))
 }

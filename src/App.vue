@@ -5,6 +5,7 @@
       <nav aria-label="主导航">
         <RouterLink to="/">今日一练</RouterLink>
         <RouterLink to="/phonemes">48 音素</RouterLink>
+        <RouterLink to="/articles">长文跟读</RouterLink>
         <RouterLink to="/practice">拆词与跟读</RouterLink>
       </nav>
     </div>
@@ -13,6 +14,7 @@
   <nav class="bottom-tabs" aria-label="底部导航">
     <RouterLink to="/"><span aria-hidden="true">📅</span>今日一练</RouterLink>
     <RouterLink to="/phonemes"><span aria-hidden="true">/a/</span>音标表</RouterLink>
-    <RouterLink to="/practice"><span aria-hidden="true">🎙</span>拆词跟读</RouterLink>
+    <RouterLink to="/articles"><span aria-hidden="true">📖</span>长文跟读</RouterLink>
+    <RouterLink to="/practice"><span aria-hidden="true">🎙</span>拆词</RouterLink>
   </nav>
 </template>

@@ -63,3 +63,81 @@ npm run build   # production build to dist/
 ```
 
 Deployment: GitHub Pages serves the production build from the `gh-pages` branch (root). Note: a GitHub Actions workflow version (`deploy-pages.yml`) was prepared but could NOT be pushed — the `gh` OAuth token on this machine has scopes `gist, read:org, repo` and no `workflow` scope, and GitHub rejected the push of `.github/workflows/*`. The workflow file is kept locally at `~/workspace/english-practice-site-workflow-backup/deploy-pages.yml`; to switch to Actions deploys later, re-auth `gh` with the `workflow` scope, add the file, and set Pages source to "GitHub Actions". To redeploy manually: `npm run build`, then publish the contents of `dist/` to the `gh-pages` branch root and push.
+
+
+---
+
+# v2 — Rebuild (2026-11-24 evening)
+
+Shi's verdict on v1: mobile browsers could not play the audio (speechSynthesis
+is unreliable on Android / in-app webviews), he wanted LONG-article shadowing,
+and the 257-word dictionary was a toy. v2 fixes all three. The approved
+check-in system was NOT built in this run (deferred by Shi's instruction).
+
+## Fix A — real audio files, no browser TTS
+
+- **TTS actually used: Piper (local neural TTS), voice `en_US-lessac-medium`**
+  (American English), run on this VM via `tools/gen_audio.py`, wav → mp3
+  (ffmpeg, libmp3lame q:a 4, mono 22.05 kHz).
+- **edge-tts was tried first and FAILED on this VM** (evidence, 2026-11-24):
+  direct connections are DNS-hijacked to a fake IP (198.18.110.14) and TLS
+  dies with `WRONG_VERSION_NUMBER`; through the egress HTTP proxy the TLS
+  layer can be fixed with the system CA store, but the websocket handshake
+  then fails with `WSServerHandshakeError: 101 'Invalid connection header'`
+  (the proxy breaks the WS upgrade, with and without compression). gTTS was
+  installed as a second fallback but was not needed.
+- **140 mp3s generated, 3.92 MB total**, all ffprobe-verified (spot checks:
+  article-2 full = 67.5 s / 465 KB; topic-1-2 = 2.7 s; phoneme θ = 0.62 s):
+  48 phoneme example words, 8 minimal-pair quiz words, 28 Week-1 topic
+  sentences + 7 topic full answers, 49 article sentences + 3 article fulls.
+- Frontend: `src/audio.js` rewritten — one shared `Audio` element, playback
+  only from user taps, `playSequence` for full-article playback with
+  per-sentence highlight; native `<audio controls preload="none">` in
+  ModelAudio and article full-play. **`speechSynthesis` appears 0 times in
+  src/ and 0 times in the built bundle.**
+
+## Fix B — long-article shadowing (`/articles`, 4th bottom tab: 长文跟读)
+
+- 3 original B1–B2 articles in `src/data/articles.js`, written for this site:
+  1. *My College Life in Taiyuan* — 17 sentences, 240 words
+  2. *Learning to Cook for Myself* — 16 sentences, 231 words
+  3. *Why I Am Learning English* — 16 sentences, 229 words
+  Each sentence has a Chinese translation; each article has 3 saveable chunks.
+- UX: article list → article page with continuous full playback (sentence
+  highlight + auto-scroll), native full-article audio control, per-sentence
+  play button, MediaRecorder record/playback per sentence, 练过 ✓ toggle and
+  progress bar persisted in localStorage `eps-article-progress`.
+
+## Fix C — real dictionary
+
+- Bundled: `public/data/dict.json` — **27,657 entries, 1.75 MB (0.42 MB
+  gzipped)**, fetched lazily only when a lookup runs. Source: **CMU
+  Pronouncing Dictionary** (public domain; 133,737 entries parsed), selection
+  = top 30,000 of the OpenSubtitles en_50k frequency list ∪ Google 10,000 ∪
+  all site-content words. ARPAbet → IPA by the fixed documented mapping in
+  `tools/build_dict.py`; syllables split at vowel nuclei (phonetic syllables),
+  stress from CMU stress digits. Two site names not in CMU (taiyuan, shanxi)
+  keep hand entries, documented in the script.
+- Fallback: Free Dictionary API (`api.dictionaryapi.dev`, no key) with
+  localStorage cache `eps-dict-cache`; UI labels the source honestly
+  （内置词典 / 在线词典） and shows the API's audio player when present.
+  "词库里还没有" only appears after BOTH sources miss.
+- Spot checks run by Muse against the shipped dict.json: development
+  /dɪvˈeləpmənt/, environment /ɪnvˈaɪrənmənt/, particularly /ˌpɑrtˈɪkjələrliː/,
+  schedule /ˈskedʒʊl/ (American), comfortable /ˈkʌmfərtəbəl/, music
+  /ˈmjuːzɪk/ — all present and correct; zzqqx → absent from bundled dict AND
+  the API returns "No Definitions Found" for it (verified by curl from this
+  VM), so it fails honestly through both paths.
+
+## Build / deploy verification (v2)
+
+- `npm run build` passes (40 modules; JS 138 KB; total dist 5.9 MB — far
+  under the Pages 1 GB limit). dist contains all 140 mp3s and data/dict.json;
+  bundle grep: `speechSynthesis` 0 hits; 长文跟读 / data/dict.json /
+  dictionaryapi.dev / eps-article-progress all present.
+- Note on process: a Codex run for this rewrite was started but hung ~10 min
+  with zero output/file changes and was killed; the frontend rewrite was then
+  done by direct edits following the same written spec
+  (`CODEX_PROMPT_V2.md`). All verification above was done by Muse directly.
+- Live verification: see the delivery report for the final live checks
+  (Pages status, HTML/JS/CSS 200, sample mp3 200s, live bundle greps).
